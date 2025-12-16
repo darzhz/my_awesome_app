@@ -69,12 +69,6 @@ jobs:
               bench --site $SITE_NAME migrate
             "
 
-            echo "📐 Syncing DocTypes"
-            docker exec "$DOCKER_CONTAINER" bash -c "
-              cd /workspace/development/frappe-bench
-              bench --site $SITE_NAME execute frappe.desk.doctype.doctype.doctype.sync_all
-            "
-
             echo "🧹 Clearing cache"
             docker exec "$DOCKER_CONTAINER" bash -c "
               cd /workspace/development/frappe-bench
