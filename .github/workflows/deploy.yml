@@ -1,0 +1,51 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches: [main]
+    tags:
+      - 'v*'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      - name: Deploy via SSH (Docker Container)
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          DOCKER_CONTAINER: ${{ secrets.DOCKER_CONTAINER }}
+          SITE_NAME: ${{ secrets.SITE_NAME }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$DEPLOY_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H $DEPLOY_HOST >> ~/.ssh/known_hosts
+          
+          ssh -i ~/.ssh/deploy_key $DEPLOY_USER@$DEPLOY_HOST << 'EOF'
+            echo "Fetching latest code on host..."
+            cd $DEPLOY_PATH
+            git -C apps/my_awesome_app fetch origin
+            git -C apps/my_awesome_app checkout ${{ github.ref_name }}
+            
+            echo "Running database migrations in container..."
+            docker exec $DOCKER_CONTAINER bench --site $SITE_NAME migrate
+            
+            echo "Syncing DocTypes and applying schema changes..."
+            docker exec $DOCKER_CONTAINER bench --site $SITE_NAME execute frappe.desk.doctype.doctype.doctype.sync_all
+            
+            echo "Clearing cache..."
+            docker exec $DOCKER_CONTAINER bench clear-cache
+            
+            echo "Restarting container..."
+            docker restart $DOCKER_CONTAINER
+            
+            echo "Deployment completed successfully!"
+          EOF
