@@ -50,6 +50,9 @@ jobs:
             ls -la apps || true
             ls -la apps/my_awesome_app || true
 
+            echo "🔐 Marking repo as safe for git"
+            git config --global --add safe.directory "$DEPLOY_PATH/apps/my_awesome_app"
+
             echo "🔄 Fetching latest code"
             cd apps/my_awesome_app
             git fetch origin
