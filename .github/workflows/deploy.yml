@@ -50,22 +50,18 @@ jobs:
             ls -la apps || true
             ls -la apps/my_awesome_app || true
 
-            echo "🔐 Marking repo as safe for git"
-            git config --global --add safe.directory "$DEPLOY_PATH/apps/my_awesome_app"
-
-            echo "🔄 Fetching latest code"
-            cd apps/my_awesome_app
-            git fetch origin
-
-            echo "🔀 Checking out ref: $REF_NAME"
-            git checkout "$REF_NAME"
-
-            echo "📊 Git status"
-            git status
-            git log -1 --oneline
-
             echo "🐳 Verifying Docker container"
             docker ps | grep "$DOCKER_CONTAINER"
+
+            echo "🔄 Fetching latest code INSIDE container"
+            docker exec "$DOCKER_CONTAINER" bash -c "
+              set -euxo pipefail
+              cd /workspace/development/frappe-bench/apps/my_awesome_app
+              git fetch origin
+              git checkout $REF_NAME
+              git status
+              git log -1 --oneline
+            "
 
             echo "🧱 Running database migrations"
             docker exec "$DOCKER_CONTAINER" bench --site "$SITE_NAME" migrate
