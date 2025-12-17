@@ -1,0 +1,31 @@
+{
+  "custom_fields": [],
+  "property_setters": [
+    {
+      "name": "Pick List-scan_barcode-hidden",
+      "creation": "2025-12-17 15:36:17.489345",
+      "modified": "2025-12-17 15:36:17.489345",
+      "modified_by": "Administrator",
+      "owner": "Administrator",
+      "docstatus": 0,
+      "idx": 0,
+      "is_system_generated": 1,
+      "doctype_or_field": "DocField",
+      "doc_type": "Pick List",
+      "field_name": "scan_barcode",
+      "row_name": null,
+      "module": null,
+      "property": "hidden",
+      "property_type": "Check",
+      "value": "0",
+      "default_value": null,
+      "_user_tags": null,
+      "_comments": null,
+      "_assign": null,
+      "_liked_by": null
+    }
+  ],
+  "client_scripts": [],
+  "server_scripts": [],
+  "custom_perms": []
+}
